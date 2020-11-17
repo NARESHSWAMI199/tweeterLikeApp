@@ -1,0 +1,40 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<h1>Hello, world!</h1>
+
+<div id="tweets">
+    Change this 
+</div>
+
+<script>
+
+    // this is for get data on index page therw json
+
+    var di = document.getElementById('tweets')
+    const xhr = new XMLHttpRequest()
+    var url = '/tweet'
+    var method = "GET"
+    var responseType = 'json'
+
+    xhr.responseType = responseType
+    xhr.open(method,url)
+    xhr.onload = function(){
+        var ServerResponse = xhr.response
+        var listResponse = ServerResponse.response
+        console.log(listResponse);
+        
+        var i;
+        var text = ""
+
+        for (i = 0; i< listResponse.length; i++){
+            text += "<h3>" + listResponse[i].id + "  " + listResponse[i].content + "</h3>"          
+        }
+        di.innerHTML = "<h3>"+ text + "</h3>"
+    }
+
+    xhr.send()
+</script>
+
+{% endblock %}
