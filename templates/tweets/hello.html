@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+
+
+<div class="container mt-5">
+    <div class="row">
+        <div class=" mb-5 text-center col-md-12">
+            <h1>Welcome to tweetme 2 !</h1>
+        </div>
+    </div>
+
+
+    <div class="row">
+        <div class="col-12 offset-3">
+            <form class="mb-5" method="POST" id="tweet-create-form" action="/create-tweet/" >
+                {% csrf_token %}
+                <!-- this is a url where we want redirect where we want submit -->
+                <input type="hidden" name="url" value="/">
+                <textarea name="content"  cols="50" rows="5" placeholder="tweet here"></textarea><br>
+                <button class="btn btn-primary" type="submit"> submit </button>
+            </form>
+        </div>
+
+    </div>
+
+
+    <div class="row">
+        <div class="col-md-10 col-lg-10">
+            <div id="tweets">
+                Change this
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+
+
+//  WE HANDLE YOUR FORM COMPLETE IN JAVA SCRIPT IF YOU DONT TAKE ANY CLASSES ABOUT XML THEN MUST TAKE
+
+//  THIS IS SENDING THE DATA ON FORM ACTION URL AFTER PREVENTDEFAULT()
+//  WHY ?   IN FUTURE IF WE NEED THIS DATA THEN WE CAN SHOW GET THERE
+
+    const tweet_form = document.getElementById("tweet-create-form" )
+
+    // by defalut its take a arg it's called event
+    tweet_form.addEventListener("submit",function(){
+        // this is prevent the sening data
+        event.preventDefault()
+        // console.log(event)
+        // the event an object and target is a key for retrive data
+        const myform = event.target
+        const myFormData = new FormData(myform)
+        const url= myform.getAttribute('action')
+        const method = myform.getAttribute('method')
+
+        // get data form url in json format same as previous
+        const xhr = new XMLHttpRequest()
+        xhr.open(method,url)
+        xhr.onload = function(){
+            const ServerResponse = xhr.response
+            console.log(ServerResponse)
+        }
+        xhr.send(myFormData)
+
+        
+
+
+
+
+        //  here we get the data  from form
+
+    })
+
+
+
+    var div = document.getElementById('tweets')
+
+    // THIS IS GETTING THE DATA FORM TWEET FUCNTION USING JSON FORM
+    function loadTweet(di){
+        const xhr = new XMLHttpRequest()
+        var url = '/tweet'
+        var method = "GET"
+        var responseType = 'json'
+
+        xhr.responseType = responseType
+        xhr.open(method, url)
+        xhr.onload = function () {
+            var ServerResponse = xhr.response
+            var listResponse = ServerResponse.response
+            // console.log(listResponse);   // print the data wich we retrive form tweet url
+            var i;
+            var text = ""
+
+            for (i = 0; i < listResponse.length; i++) {
+                currentItem = formatTweetElement(listResponse[i]);
+                text += currentItem
+            }
+            di.innerHTML = text;
+        }
+        xhr.send()
+    }
+
+    // FUNCITON CALLING 
+    loadTweet(div)
+
+
+    // handle did like 
+
+    function handleDidLike(tweet_id, currentLike) {
+        console.log(tweet_id + "  " + currentLike)
+    }
+
+    // btn 
+    function likeButton(tweet) {
+        return "<button class='btn btn-primary mb-2' onclick='handleDidLike(" + tweet.id + "," + tweet.likes + ")'> Like   </button> "
+    }
+
+    // format function 
+    function formatTweetElement(tweet) {
+        var formattedTweet = "<div  class='p-4 border-top border-bottom mb-4' tweet_id = '" + tweet.id + "'> <h5>" + tweet.id + "  " + tweet.content + " " + tweet.likes + "</h5>" +
+            likeButton(tweet)
+            + " </div>";
+        return formattedTweet;
+    }
+
+
+
+</script>
+
+{% endblock %}

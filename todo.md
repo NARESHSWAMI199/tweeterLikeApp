@@ -4,6 +4,7 @@
         -> Image
     -> Delete
     -> Rewritting
+    -> liking
 
 2. Users
     -> Register

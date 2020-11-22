@@ -13,7 +13,9 @@ SECRET_KEY = 'ny%n!3pz3piy(pj)zyiyjngp^pgy(ryt151&)55rr57q&c$uxg'
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+#  basically use this for is_safe_url  for more information check views.py
+ALLOWED_HOSTS = ['127.0.0.1' , '.myhost.sh']
+
 
 
 # Application definition
