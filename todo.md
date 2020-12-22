@@ -4,7 +4,9 @@
         -> Image
     -> Delete
     -> Rewritting
-    -> liking
+        ->readonly serializer
+        -> create serializer
+    -> liking or rewritting
 
 2. Users
     -> Register

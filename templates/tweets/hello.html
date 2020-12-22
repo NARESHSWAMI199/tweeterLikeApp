@@ -2,31 +2,24 @@
 
 {% block content %}
 
-
-
-<div class="container mt-5">
-    <div class="row">
-        <div class=" mb-5 text-center col-md-12">
+<div class="container d-none mt-5">
+    <div class=" row">
+        <div class="col-6 offset-1">
             <h1>Welcome to tweetme 2 !</h1>
-        </div>
-    </div>
-
-
-    <div class="row">
-        <div class="col-12 offset-3">
-            <form class="mb-5" method="POST" id="tweet-create-form" action="/create-tweet/" >
+            <form class="mb-5" method="POST" id="tweet-create-form" action="/api/tweet/create/">
                 {% csrf_token %}
+                <!-- display errors here -->
+                <div id="tweet-error"></div>
                 <!-- this is a url where we want redirect where we want submit -->
                 <input type="hidden" name="url" value="/">
-                <textarea name="content"  cols="50" rows="5" placeholder="tweet here"></textarea><br>
-                <button class="btn btn-primary" type="submit"> submit </button>
+                <textarea required="required" name="content" class="form-control" cols="50" rows="2" placeholder="tweet here"></textarea><br>
+                <button class="btn btn-danger" type="submit"> submit </button>
             </form>
         </div>
 
     </div>
-
-
-    <div class="row">
+    <div class="tweetme-2"></div>
+    <div class="row ">
         <div class="col-md-10 col-lg-10">
             <div id="tweets">
                 Change this
@@ -34,54 +27,124 @@
         </div>
     </div>
 </div>
+
+
+{% include 'react.html' %}
+<div class="tweetme-2"></div>
+
+
+
 <script>
 
+    // FOR SEND THE CSRF TOKEN THRE JSON WE USING THIS METHOD FROM DJANGO DOCUMENTAIION
+    //  LINK IS : https://docs.djangoproject.com/en/2.2/ref/csrf/
+    function getCookie(name) {
+        var cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            var cookies = document.cookie.split(';');
+            for (var i = 0; i < cookies.length; i++) {
+                var cookie = cookies[i].trim();
+                // Does this cookie string begin with the name we want?
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
+    }
 
 
-//  WE HANDLE YOUR FORM COMPLETE IN JAVA SCRIPT IF YOU DONT TAKE ANY CLASSES ABOUT XML THEN MUST TAKE
 
-//  THIS IS SENDING THE DATA ON FORM ACTION URL AFTER PREVENTDEFAULT()
-//  WHY ?   IN FUTURE IF WE NEED THIS DATA THEN WE CAN SHOW GET THERE
+    // SHOW THE ERROR MESSAGE THEW JS Calling in submit event
 
-    const tweet_form = document.getElementById("tweet-create-form" )
+    function showErrorMessage(msg, display) {
+        const errorShowDiv = document.getElementById('tweet-error')
+        if (display === true) {
+            errorShowDiv.setAttribute('class', 'd-block alert alert-danger ')
+            errorShowDiv.innerHTML = msg
+        }
+        else {
+            errorShowDiv.setAttribute('class', 'd-none')
+        }
+    }
 
+
+    //  WE HANDLE YOUR FORM COMPLETE IN JAVA SCRIPT IF YOU DONT TAKE ANY CLASSES ABOUT XML THEN MUST TAKE
+
+    //  THIS IS SENDING THE DATA ON FORM ACTION URL AFTER PREVENTDEFAULT()
+    //  WHY ?   IN FUTURE IF WE NEED THIS DATA THEN WE CAN SHOW GET THERE
+
+    const tweet_form = document.getElementById("tweet-create-form")
     // by defalut its take a arg it's called event
-    tweet_form.addEventListener("submit",function(){
+    tweet_form.addEventListener("submit", function () {
         // this is prevent the sening data
         event.preventDefault()
         // console.log(event)
         // the event an object and target is a key for retrive data
         const myform = event.target
         const myFormData = new FormData(myform)
-        const url= myform.getAttribute('action')
+        const url = myform.getAttribute('action')
         const method = myform.getAttribute('method')
-
+        const rt = 'json'   // if you use this then you don't need to convert you data in json format 
+        //  JSON.parse(input  or server response)
         // get data form url in json format same as previous
         const xhr = new XMLHttpRequest()
-        xhr.open(method,url)
-        xhr.onload = function(){
-            const ServerResponse = xhr.response
-            console.log(ServerResponse)
+        xhr.open(method, url)
+        xhr.responseType = rt
+        // making a ajax request so set header for django response
+        xhr.setRequestHeader('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest')
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+        xhr.onload = function () {
+
+            if (xhr.status === 201) {
+                const myTweet = xhr.response
+                console.log(myTweet.like)
+                const newTweetElement = formatTweetElement(myTweet)
+                // oghtml  the pervious data
+                oghtml = tweetContainer.innerHTML
+                tweetContainer.innerHTML = newTweetElement + oghtml
+                // reset the form 
+                tweet_form.reset()
+            }
+            // else if the form accour any error then get this
+            else if (xhr.status === 400) {
+                const formError = xhr.response
+                const getFromError = formError.content
+                let contentErrorMessage;
+                if (getFromError) {
+                    contentErrorMessage = getFromError[0]
+                    if (contentErrorMessage) {
+                        showErrorMessage(contentErrorMessage, true)
+                    }
+                }
+                else {
+                    alert(" an error accour ! pealse try again")
+                }
+            }
+            else if (xhr.status === 500) {
+                alert('this is an server error ! please try again')
+            }
+            else if (xhr.status == 401) {
+                alert("please login before tweet !!")
+                window.location.href = '/login'
+            }
+            else if (xhr.status == 403) {
+                alert("please login before tweet !!")
+                window.location.href = '/login'
+            }
+
         }
-        xhr.send(myFormData)
-
-        
-
-
-
-
+        xhr.send(myFormData)  // submiting the data to form
         //  here we get the data  from form
-
     })
 
-
-
-    var div = document.getElementById('tweets')
+    var tweetContainer = document.getElementById('tweets')
 
     // THIS IS GETTING THE DATA FORM TWEET FUCNTION USING JSON FORM
-    function loadTweet(di){
+    function loadTweet(di) {
         const xhr = new XMLHttpRequest()
-        var url = '/tweet'
+        var url = "/tweet"
         var method = "GET"
         var responseType = 'json'
 
@@ -89,39 +152,71 @@
         xhr.open(method, url)
         xhr.onload = function () {
             var ServerResponse = xhr.response
-            var listResponse = ServerResponse.response
             // console.log(listResponse);   // print the data wich we retrive form tweet url
             var i;
             var text = ""
 
-            for (i = 0; i < listResponse.length; i++) {
-                currentItem = formatTweetElement(listResponse[i]);
-                text += currentItem
+            for (i = 0; i < ServerResponse.length; i++) {
+                text += formatTweetElement(ServerResponse[i]);
+
             }
-            di.innerHTML = text;
+            di.innerHTML = text
         }
         xhr.send()
     }
 
     // FUNCITON CALLING 
-    loadTweet(div)
+    loadTweet(tweetContainer)
 
 
     // handle did like 
+    // we sending like action form here and get data threw model in showButtonMethod()
+    function handleTweetAction(tweet_id, action) {
+        const url = '/api/tweet/action/'
+        const method = 'POST'
+        // we have get a method form documentation for this csrf_token
+        const csrftoken = getCookie('csrftoken');
+        // we send our data in json format
+        data = JSON.stringify({
+            id: tweet_id,
+            action: action
+        })
 
-    function handleDidLike(tweet_id, currentLike) {
-        console.log(tweet_id + "  " + currentLike)
+        const xhr = new XMLHttpRequest()
+        xhr.open(method, url)
+        xhr.setRequestHeader('Content-Type', 'application/json')
+        xhr.setRequestHeader('HTTP_X_REQUESTED_WITH', 'XMLHttpRequest')
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest')
+        xhr.setRequestHeader('X-CSRFToken', csrftoken)
+        xhr.onload = function () {
+            const ServerResponse = xhr.response
+            // we don't get any type response for now
+            // don't send any type data on url
+
+            // for refresh tweets for now but we also better in react js for all states
+            loadTweet(tweetContainer)
+        }
+        xhr.send(data)
+    }
+    ////////////////////////////////////////////////////////////////BTN/////////////////////////////////////
+
+    function retweetButton(tweet) {
+        return "<button class='btn btn-white shadow-sm mb-2' onclick=handleTweetAction(" + tweet.id + ",'retweet')> retweet </button> "
     }
 
-    // btn 
+
+    function unlikeButton(tweet) {
+        return "<button class='btn btn-white shadow-sm mb-2' onclick=handleTweetAction(" + tweet.id + ",'unlike')> <i class=' text-danger fa fa-thumbs-down'> </i> </button> "
+    }
+    // ulikebtn 
     function likeButton(tweet) {
-        return "<button class='btn btn-primary mb-2' onclick='handleDidLike(" + tweet.id + "," + tweet.likes + ")'> Like   </button> "
+        return "<button class='btn btn-white shadow-sm mb-2' onclick=handleTweetAction(" + tweet.id + ",'like')> <i class=' text-primary fa fa-thumbs-up'>  </i>  " + tweet.likes + "  </button> "
     }
 
     // format function 
     function formatTweetElement(tweet) {
-        var formattedTweet = "<div  class='p-4 border-top border-bottom mb-4' tweet_id = '" + tweet.id + "'> <h5>" + tweet.id + "  " + tweet.content + " " + tweet.likes + "</h5>" +
-            likeButton(tweet)
+        var formattedTweet = "<div  class='p-4 border-top border-bottom mb-4' tweet_id = '" + tweet.id + "'> <h5>  " + tweet.content + " </h5>" +
+            likeButton(tweet) + unlikeButton(tweet) + retweetButton(tweet)
             + " </div>";
         return formattedTweet;
     }

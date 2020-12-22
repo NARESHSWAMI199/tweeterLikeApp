@@ -14,8 +14,11 @@ SECRET_KEY = 'ny%n!3pz3piy(pj)zyiyjngp^pgy(ryt151&)55rr57q&c$uxg'
 DEBUG = True
 
 #  basically use this for is_safe_url  for more information check views.py
-ALLOWED_HOSTS = ['127.0.0.1' , '.myhost.sh']
+ALLOWED_HOSTS = ['127.0.0.1' , '.myhost.sh','localhost']
 
+# naresh self difind this login url is not givin default
+LOGIN_URL = '/login'
+MAX_TWEET_LENGTH = 240
 
 
 # Application definition
@@ -27,7 +30,14 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'tweets'
+    # Third-Party
+    'corsheaders',
+    'rest_framework',
+    # internal
+    'tweets',
+    'profiles',
+    'accounts',
+    'crispy_forms',
 ]
 
 MIDDLEWARE = [
@@ -38,6 +48,8 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    # django coreheaders middleware
+    'corsheaders.middleware.CorsMiddleware',
 ]
 
 ROOT_URLCONF = 'tweetme2.urls'
@@ -108,4 +120,42 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.2/howto/static-files/
 
+
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR,'tweetme2/static')
+]
+
+STATIC_ROOT = os.path.join(BASE_DIR,'static')
 STATIC_URL = '/static/'
+
+
+CORS_ORIGIN_ALLOW_ALL = True   # any website access to my api
+CORS_URLS_REGEX = r'^/api/.*$'
+
+DEFAULT_RENDERER_CLASSES = [
+        'rest_framework.renderers.JSONRenderer',
+    ]
+
+
+
+
+# if django a on debug then we show our in rest_framework view
+if DEBUG:
+    DEFAULT_AUTHENTICATION_CLASSES = [ 
+    'rest_framework.authentication.SessionAuthentication',
+    ]
+    # DEFAULT_AUTHENTICATION_CLASSES += [
+    #      'tweetme2.rest_api.dev.DevAuthentication'
+    # ]
+    DEFAULT_RENDERER_CLASSES.append('rest_framework.renderers.BrowsableAPIRenderer')
+
+# Third pary for create a seeion for every view
+REST_FRAMEWORK = { 
+   'DEFAULT_AUTHENTICATION_CLASSES' : DEFAULT_AUTHENTICATION_CLASSES,
+    # These class show your json data as a normal view
+    'DEFAULT_RENDERER_CLASSES': DEFAULT_RENDERER_CLASSES
+
+}
+
+
+CRISPY_TEMPLATE_PACK = 'bootstrap4'
