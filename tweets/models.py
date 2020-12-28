@@ -1,6 +1,9 @@
 from django.db import models
 import random
+from django.db.models import Q 
 from django.conf import settings
+
+
 
 
 
@@ -8,15 +11,40 @@ User = settings.AUTH_USER_MODEL
 
 
 
+# here we can apply direct query here and make our view looking cleaner and preety
+class TweetQuerySet(models.QuerySet):
+    def feed(self,user):
+        profile_exist = user.following
+        profiles = user.following.all()
+        followed_users_id = []
+        if profile_exist.exists():
+            # here we used the flat argumetn beacuse we need just only user_id
+            followed_users_id = user.following.vlaues_list("user__id",flat=True)
+        # get users id which following the our profile
+        # distinct deny the duplicate values. we need beacuse the in query we have or function as "Q" keywrod
 
+        # here self represent the  //   Model.objects
+        return self.filter(Q(user__id__in=followed_users_id) | Q(user = user)).distinct().order_by("-timestamp")
+
+# we can manage our data as for a function or according your afficient way
+class TweetManager(models.Manager):
+    # this method is predifind in Manager Class
+    def get_queryset(self,*arg,**kwargs):
+        return  TweetQuerySet(self.model,using=self._db)
+
+    # we need to create this function for call and provide the user into the feed function
+    #  here this function calling the uppder QuerySet Class's funciton 
+
+    # if you calling this function here you don't need to do the use all() method queryset anothrer you need
+    def feed(self,user):
+        return self.get_queryset().feed(user)
 
 # we need some history for user for extra you cam remove this but for i added
 
 class TweetLike(models.Model):
     user = models.ForeignKey(User,on_delete=models.CASCADE)
     tweet = models.ForeignKey("Tweet",on_delete=models.CASCADE)
-    timestmap = models.DateTimeField(auto_now_add=True,null=True)
-
+    timestamp = models.DateTimeField(auto_now_add=True,null=True)
 
 
 
@@ -29,7 +57,10 @@ class Tweet(models.Model):
     # using likes m2m we enter data in TweetLike table or model
     likes = models.ManyToManyField(User,related_name='tweet_user',through=TweetLike)
     image = models.ImageField(upload_to='images/',null=True,blank=True)
-    timestmap = models.DateTimeField(auto_now_add=True,null=True)
+    timestamp = models.DateTimeField(auto_now_add=True,null=True)
+
+    # adding a new filed
+    objects = TweetManager()
 
 
     # def __str__(self):

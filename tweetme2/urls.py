@@ -15,7 +15,8 @@ from accounts.views import (
 urlpatterns = [
 
     path('admin/', admin.site.urls),
-    path('',views.tweets_list_view,name="tweets_list_view"),
+    path('', views.home_view,name='home_view'),
+    path('global',views.tweets_list_view,name="tweets_list_view"),
     path('login/',login_view,name="login_view"),
     path('logout/',logout_view,name="logout_view"),
     path('register/',register_view,name="register_view"),
@@ -24,6 +25,8 @@ urlpatterns = [
     # here i repath beacuse we want profile or profiles both work so i make 's' is optional
     re_path(r'profiles?/', include('profiles.urls')),
     path('api/tweet/', include('tweets.api.urls')),
+    re_path(r'api/profiles?/', include('profiles.api.urls')),
+
 ]
 
 if settings.DEBUG:

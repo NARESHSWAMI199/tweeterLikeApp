@@ -144,6 +144,7 @@ if DEBUG:
     DEFAULT_AUTHENTICATION_CLASSES = [ 
     'rest_framework.authentication.SessionAuthentication',
     ]
+    # this is  use only for react actions the allow this user
     # DEFAULT_AUTHENTICATION_CLASSES += [
     #      'tweetme2.rest_api.dev.DevAuthentication'
     # ]

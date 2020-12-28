@@ -1,0 +1,22 @@
+{% extends 'base.html' %}
+{% load crispy_forms_tags %}
+{% block content %}
+
+
+<div class="col-10 col-md-6 bg-light  p-5 mx-auto shadow-sm ">
+    <h3>{{title}}</h3>
+    <div class="form-group  mt-5 ">
+        <form action="./edit" method="POST">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <input type="submit" class="d-flex justify-content-center btn btn-primary"
+            {% if btn_label  %}
+               value="{{ btn_label }}"
+            {% else %}
+               value="Submit"
+            {% endif %}
+        />
+    </div>
+    </form>
+</div>
+{% endblock %}

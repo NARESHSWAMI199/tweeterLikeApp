@@ -8,10 +8,7 @@ ALLOWED_HOSTS = settings.ALLOWED_HOSTS
 
  
 def home_view(request,*args,**kwargs):
-    username = None
-    if request.user.is_authenticated:
-        username = request.user.username
-    return render(request,"tweets/hello.html")
+    return render(request,"pages/feed.html")
 
 def tweets_list_view(request,*args,**kwargs):
     return render(request,"tweets/list.html")
@@ -19,6 +16,9 @@ def tweets_list_view(request,*args,**kwargs):
 def tweets_detail_view(request,tweet_id,*args,**kwargs):
     print("the tweet id " ,tweet_id)
     return render(request,"tweets/detail.html",context={'tweet_id':tweet_id})
+ 
+
+    
 
 def tweet_create_view_with_pure_djagno(request,*args,**kwargs):
     user = request.user
