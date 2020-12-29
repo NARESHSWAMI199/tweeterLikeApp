@@ -10,6 +10,12 @@ from django.conf import settings
 User = settings.AUTH_USER_MODEL
 
 
+class TweetLike(models.Model):
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
+    tweet = models.ForeignKey("Tweet",on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(auto_now_add=True,null=True)
+
+
 
 # here we can apply direct query here and make our view looking cleaner and preety
 class TweetQuerySet(models.QuerySet):
@@ -17,9 +23,9 @@ class TweetQuerySet(models.QuerySet):
         profile_exist = user.following
         profiles = user.following.all()
         followed_users_id = []
-        if profile_exist.exists():
+        if profile_exist:
             # here we used the flat argumetn beacuse we need just only user_id
-            followed_users_id = user.following.vlaues_list("user__id",flat=True)
+            followed_users_id = user.following.filter(user__id = user.id)#user.following.vlaues_list("user__id",flat=True)
         # get users id which following the our profile
         # distinct deny the duplicate values. we need beacuse the in query we have or function as "Q" keywrod
 
@@ -40,11 +46,6 @@ class TweetManager(models.Manager):
         return self.get_queryset().feed(user)
 
 # we need some history for user for extra you cam remove this but for i added
-
-class TweetLike(models.Model):
-    user = models.ForeignKey(User,on_delete=models.CASCADE)
-    tweet = models.ForeignKey("Tweet",on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(auto_now_add=True,null=True)
 
 
 

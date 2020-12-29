@@ -4,7 +4,7 @@ import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
 import {TweetFeedConponents,TweetConponents, TweetDetailComponent } from './tweets';
-
+import {ProfileBadgeComponents} from './profiles'
 
 
 const render_id = document.getElementById('root')
@@ -37,6 +37,14 @@ if (our_feed_id) {
   ReactDOM.render(
     e(TweetFeedConponents, our_feed_id.dataset), our_feed_id)
 }
+
+
+const our_profile_id = document.getElementById('tweetme-2-profile-badge')
+if (our_profile_id) {
+  ReactDOM.render(
+    e(ProfileBadgeComponents, our_profile_id.dataset), our_profile_id)
+}
+
 
 
 

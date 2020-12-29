@@ -145,9 +145,9 @@ if DEBUG:
     'rest_framework.authentication.SessionAuthentication',
     ]
     # this is  use only for react actions the allow this user
-    # DEFAULT_AUTHENTICATION_CLASSES += [
-    #      'tweetme2.rest_api.dev.DevAuthentication'
-    # ]
+    DEFAULT_AUTHENTICATION_CLASSES += [
+         'tweetme2.rest_api.dev.DevAuthentication'
+    ]
     DEFAULT_RENDERER_CLASSES.append('rest_framework.renderers.BrowsableAPIRenderer')
 
 # Third pary for create a seeion for every view

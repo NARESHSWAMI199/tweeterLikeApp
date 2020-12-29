@@ -3,7 +3,8 @@ from django.urls import path
 from .views import (profile_detail_view,
                     update_profile_view)
 
+app_name = 'profiles'
 urlpatterns = [
-    path('<str:username>/',profile_detail_view,name="tweets_profile_view"),
-    path('edit',update_profile_view)
+    path('edit/',update_profile_view),
+    path('<str:username>/',profile_detail_view),
 ]
